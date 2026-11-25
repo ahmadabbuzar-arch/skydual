@@ -21,6 +21,7 @@ io.on('connection', s => {
     ack({ name, room, players, spawn });
   });
   s.on('state', d => { const r = rooms[s.room]; if (!r || !r[s.id]) return; Object.assign(r[s.id], d); s.to(s.room).emit('state', { id: s.id, ...d }); });
+  s.on('ev', d => { if (d && typeof d.t === 'string' && s.room) s.to(s.room).emit('ev', { ...d, id: s.id }); });   // fire / missile / death events
   s.on('disconnect', () => { const r = rooms[s.room]; if (!r) return; delete r[s.id]; io.to(s.room).emit('left', { id: s.id, name: s.pname }); if (!Object.keys(r).length) delete rooms[s.room]; });
 });
 const PORT = process.env.PORT || 3000;
